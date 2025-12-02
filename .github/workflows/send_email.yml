@@ -1,0 +1,32 @@
+name: Mandar correo de cambios
+
+on:
+  push:
+    branches:
+      - main
+      - feature_a
+      - feature_b
+
+jobs:
+  send_email_notification:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obtener nombre de la rama
+        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+      - name: Enviar correo
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Cambios subidos a rama ${{ env.BRANCH_NAME }}"
+          to: ${{ secrets.MAIL_TO }}
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            Se subieron cambios a ${{ env.BRANCH_NAME }}
+
+            Último commit:
+            ${{ github.event.head_commit.message }}
